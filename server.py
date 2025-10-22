@@ -15,7 +15,10 @@ app = FastAPI(title="Translation RAG Server")
 # Initialize ChromaDB client and collection
 chroma_client = chromadb.Client()
 collection = chroma_client.get_or_create_collection(
-    name="translation_pairs"
+    name="translation_pairs",
+    configuration={
+        "hnsw": {"space": "cosine"}
+    }
 )
 
 # Load multilingual embedding model
@@ -132,16 +135,50 @@ def get_translation_prompt(
         return {"prompt": False, "results": []}
 
 
-@app.get("/stammering")
-def detect_stammering(sentence: str = Query(..., description="Sentence to check for stammering")):
-    """
-    Detects if a sentence has stammering (repeated starting letters or syllables).
-    Example: "I-I-I am fine", "B-b-bad weather"
-    """
-    # Simple regex-based detection of repeated characters
-    has_stammer = bool(re.search(r'\b(\w)\1{1,}\w*', sentence.lower()))
-    return {"has_stammer": has_stammer}
+import nltk
+from nltk.tokenize import word_tokenize
+import re
 
-# ----------------------------
-# Run: uvicorn server:app --reload --port 8000
-# ----------------------------
+nltk.download('punkt')
+@app.get("/stammering")
+def detect_stammering_nltk(translated_sentence: str = Query(None), max_ngram=5):
+    """
+    Detects stammering using NLTK by checking:
+    - Repeated single words
+    - Repeated letters
+    - Repeated multi-word sequences (n-grams)
+    
+    max_ngram: maximum length of word sequence to check
+    """
+
+    sentence_lower = translated_sentence.lower()
+    words = word_tokenize(sentence_lower)
+    n_words = len(words)
+
+    # 1️⃣ Repeated single words
+    repeated_words = []
+    for i in range(n_words-1):
+        if words[i] == words[i+1]:
+            repeated_words.append(words[i])
+    
+    if repeated_words:
+        return {"has_stammer": True, "type": "repeated_word", "repeated": repeated_words}
+
+    # 2️⃣ Repeated letters
+    repeated_letter_pattern = r'(\w)\1{3,}'
+    if re.search(repeated_letter_pattern, sentence_lower):
+        return {"has_stammer": True, "type": "repeated_letter"}
+
+    # 3️⃣ Repeated multi-word sequences
+    repeated_sequences = []
+    for n in range(2, max_ngram+1):  # n-grams from 2 to max_ngram
+        for i in range(n_words - 2*n + 1):
+            seq1 = words[i:i+n]
+            seq2 = words[i+n:i+2*n]
+            if seq1 == seq2:
+                repeated_sequences.append(" ".join(seq1))
+    
+    if repeated_sequences:
+        return {"has_stammer": True, "type": "repeated_group", "repeated": repeated_sequences}
+
+    return {"has_stammer": False}
