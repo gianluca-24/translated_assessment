@@ -1,7 +1,7 @@
 import requests
 import json
 
-BASE_URL = 'http://localhost:8000'
+BASE_URL = 'http://localhost:8001'
 FILES = {
     'translation_pairs': 'translation_pairs.jsonl',
     'translation_requests': 'translation_requests.jsonl',
