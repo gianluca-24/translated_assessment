@@ -19,7 +19,7 @@ docker build -t translation-rag-server .
 ```
 Run the container:
 ```
-docker run -p 8000:8000 --name rag-server translation-rag-server
+docker run -p 8001:8001 --name rag-server translation-rag-server
 ```
 
 ## Setup (No Docker)
