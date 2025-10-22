@@ -155,7 +155,7 @@ def detect_stammering_nltk(translated_sentence: str = Query(None), max_ngram=5):
     words = word_tokenize(sentence_lower)
     n_words = len(words)
 
-    # 1️⃣ Repeated single words
+    # Repeated single words
     repeated_words = []
     for i in range(n_words-1):
         if words[i] == words[i+1]:
@@ -164,12 +164,12 @@ def detect_stammering_nltk(translated_sentence: str = Query(None), max_ngram=5):
     if repeated_words:
         return {"has_stammer": True, "type": "repeated_word", "repeated": repeated_words}
 
-    # 2️⃣ Repeated letters
+    # Repeated letters
     repeated_letter_pattern = r'(\w)\1{3,}'
     if re.search(repeated_letter_pattern, sentence_lower):
         return {"has_stammer": True, "type": "repeated_letter"}
 
-    # 3️⃣ Repeated multi-word sequences
+    # Repeated multi-word sequences
     repeated_sequences = []
     for n in range(2, max_ngram+1):  # n-grams from 2 to max_ngram
         for i in range(n_words - 2*n + 1):

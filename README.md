@@ -9,6 +9,7 @@ This project implements a **Retrieval-Augmented Generation (RAG) translation ser
 - Retrieve up to 4 most similar translations for a given query.
 - Detect stammering in sentences using a simple regex-based method.
 - Supports multilingual embeddings with `SentenceTransformer`.
+- `nltk` library is used for stammering detection.
 
 ## Setup (Docker)
 
@@ -18,7 +19,7 @@ docker build -t translation-rag-server .
 ```
 Run the container:
 ```
-docker run -d -p 8000:8000 --name rag-server translation-rag-server
+docker run -p 8000:8000 --name rag-server translation-rag-server
 ```
 
 ## Setup (No Docker)
@@ -49,12 +50,12 @@ pip install -r requirements.txt
 
 Run the server for development:
 ```
-uvicorn server:app --reload --port 8001
+uvicorn server:app --reload --port 8000
 ```
 
 Run the server for testing:
 ```
-uvicorn server:app --port 8001
+uvicorn server:app --port 8000
 ```
 
 The prompt format was taken from: https://arxiv.org/pdf/2501.01679
