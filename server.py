@@ -139,7 +139,7 @@ import nltk
 from nltk.tokenize import word_tokenize
 import re
 
-nltk.download('punkt')
+# nltk.download('punkt')
 @app.get("/stammering")
 def detect_stammering_nltk(translated_sentence: str = Query(None), max_ngram=5):
     """
